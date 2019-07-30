@@ -26,11 +26,15 @@ namespace Server
 
 			byte[] buffer = new byte[1024];
 			string msg = "";
+			int iKey;
 
 			msg += Encoding.ASCII.GetString(buffer, 0, ns.Receive(buffer));
 
 			Console.WriteLine("Recive from: " + ns.RemoteEndPoint.ToString());
 			Console.WriteLine($"Recive msg: {msg}");
+
+			iKey = int.Parse(msg.Substring(0, 1));
+			if (iKey == 2) Thread.Sleep(5000);
 
 			msg = msg.Replace("<EOF>", "");
 			msg += " Frog!" + "<EOF>";
@@ -39,8 +43,7 @@ namespace Server
 			Console.WriteLine("Send msg: " + msg + "\n");
 
 			byte[] sendBufer = System.Text.Encoding.ASCII.GetBytes(msg);
-			ns.BeginSend(sendBufer, 0, sendBufer.Length,
-			SocketFlags.None, new AsyncCallback(MySendCallbackFunction), ns);
+			ns.BeginSend(sendBufer, 0, sendBufer.Length, SocketFlags.None, new AsyncCallback(MySendCallbackFunction), ns);
 
 			socket.BeginAccept(new AsyncCallback(MyAcceptCallbakFunction), socket);
 		}
