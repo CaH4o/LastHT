@@ -1,0 +1,7 @@
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\bin\Debug\Server.exe.config
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\bin\Debug\Server.exe
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\bin\Debug\Server.pdb
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\obj\Debug\Server.exe
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\obj\Debug\Server.pdb
+W:\Git\SystemProgramming\dotnet-NW_HT\Server\obj\Debug\Server.csprojAssemblyReference.cache

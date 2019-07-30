@@ -1,0 +1,7 @@
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\bin\Debug\dotnet-NW_HT.exe.config
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\bin\Debug\dotnet-NW_HT.exe
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\bin\Debug\dotnet-NW_HT.pdb
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\obj\Debug\Client.csprojAssemblyReference.cache
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\obj\Debug\Client.csproj.CoreCompileInputs.cache
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\obj\Debug\dotnet-NW_HT.exe
+W:\Git\SystemProgramming\dotnet-NW_HT\dotnet-NW_HT\obj\Debug\dotnet-NW_HT.pdb
