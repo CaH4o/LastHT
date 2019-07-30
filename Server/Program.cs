@@ -19,31 +19,43 @@ namespace Server
 			endP = new IPEndPoint(IPAddress.Parse(strAddr), port);
 		}
 
+		static int cnt = 0;
+
 		void MyAcceptCallbakFunction(IAsyncResult ia)
 		{
 			Socket socket = (Socket)ia.AsyncState;
-			Socket ns = socket.EndAccept(ia);
 
-			byte[] buffer = new byte[1024];
-			string msg = "";
-			int iKey;
+			Thread t1 = new Thread(() => {
+				int curr = ++cnt;
+				Socket ns = socket.EndAccept(ia);
 
-			msg += Encoding.ASCII.GetString(buffer, 0, ns.Receive(buffer));
+				byte[] buffer = new byte[1024];
+				string msg = "";
+				int iKey;
 
-			Console.WriteLine("Recive from: " + ns.RemoteEndPoint.ToString());
-			Console.WriteLine($"Recive msg: {msg}");
+				msg += Encoding.ASCII.GetString(buffer, 0, ns.Receive(buffer));
+				Console.WriteLine($"Request No: {curr}");
+				Console.WriteLine("Recive from: " + ns.RemoteEndPoint.ToString());
+				Console.WriteLine($"Recive msg: {msg}\n");
 
-			iKey = int.Parse(msg.Substring(0, 1));
-			if (iKey == 2) Thread.Sleep(5000);
+				iKey = int.Parse(msg.Substring(0, 1));
+				if (iKey == 1) Thread.Sleep(1000);
+				if (iKey == 2) Thread.Sleep(5000);
+				if (iKey == 3) Thread.Sleep(10000);
 
-			msg = msg.Replace("<EOF>", "");
-			msg += " Frog!" + "<EOF>";
+				msg = msg.Replace("<EOF>", "");
+				msg += " Frog!" + "<EOF>";
 
-			Console.WriteLine("Send to: " + ns.RemoteEndPoint.ToString());
-			Console.WriteLine("Send msg: " + msg + "\n");
+				Console.WriteLine($"Request No: {curr}"); 
+				Console.WriteLine("Send to: " + ns.RemoteEndPoint.ToString());
+				Console.WriteLine("Send msg: " + msg + "\n");
 
-			byte[] sendBufer = System.Text.Encoding.ASCII.GetBytes(msg);
-			ns.BeginSend(sendBufer, 0, sendBufer.Length, SocketFlags.None, new AsyncCallback(MySendCallbackFunction), ns);
+				byte[] sendBufer = System.Text.Encoding.ASCII.GetBytes(msg);
+				ns.BeginSend(sendBufer, 0, sendBufer.Length, SocketFlags.None, new AsyncCallback(MySendCallbackFunction), ns);
+			});
+
+			t1.IsBackground = true;
+			t1.Start();
 
 			socket.BeginAccept(new AsyncCallback(MyAcceptCallbakFunction), socket);
 		}
