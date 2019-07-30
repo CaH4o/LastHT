@@ -14,25 +14,20 @@ namespace dotnet_NW_HT
 		static void Main(string[] args)
 		{
 			IPAddress ip = IPAddress.Parse("127.0.0.1");
-			IPEndPoint ep = new IPEndPoint(ip, 3000);
-			Socket s = new Socket(
-				AddressFamily.InterNetwork,
-				SocketType.Stream,
-				ProtocolType.Tcp
-			);
+			IPEndPoint ep = new IPEndPoint(ip, 1024);
+			Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
 			try
 			{
 				s.Connect(ep);
+
 				if (s.Connected)
 				{
 					String strSend;
+					strSend = (i + 1).ToString() + ". Hello!<EOF>";
+					s.Send(System.Text.Encoding.ASCII.GetBytes(strSend));
+					Console.WriteLine("Send: " + strSend);
 
-					for (int i = 0; i < 5; i++)
-					{
-						strSend = (i+1).ToString() + ". Hello!<EOF>";
-						s.Send(System.Text.Encoding.ASCII.GetBytes(strSend));
-						Console.WriteLine("Send: " + strSend);
-					}
 
 					byte[] buffer = new byte[1024];
 					string result = "";
@@ -49,17 +44,21 @@ namespace dotnet_NW_HT
 						}
 
 					} while (s.Receive(buffer) > 0);
-					Console.WriteLine(result);
+
+					result = result.Replace("<EOF>", "");
+					Console.WriteLine("Recived: " + result);
 				}
+
+				s.Shutdown(SocketShutdown.Both);
+				s.Close();
 			}
 			catch (SocketException ex)
 			{
 				Console.WriteLine(ex.Message);
 				foreach (var item in ex.StackTrace)
 				{
-					Console.WriteLine();
+					Console.WriteLine(ex.Message);
 				}
-				throw;
 			}
 
 			Console.Read();

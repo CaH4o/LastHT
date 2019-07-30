@@ -9,56 +9,68 @@ using System.Threading.Tasks;
 
 namespace Server
 {
+	class AsyncServer
+	{
+		IPEndPoint endP;
+		Socket socket;
+
+		public AsyncServer(string strAddr, int port)
+		{
+			endP = new IPEndPoint(IPAddress.Parse(strAddr), port);
+		}
+
+		void MyAcceptCallbakFunction(IAsyncResult ia)
+		{
+			Socket socket = (Socket)ia.AsyncState;
+			Socket ns = socket.EndAccept(ia);
+
+			byte[] buffer = new byte[1024];
+			string msg = "";
+
+			msg += Encoding.ASCII.GetString(buffer, 0, ns.Receive(buffer));
+
+			Console.WriteLine("Recive from: " + ns.RemoteEndPoint.ToString());
+			Console.WriteLine($"Recive msg: {msg}");
+
+			msg = msg.Replace("<EOF>", "");
+			msg += " Frog!" + "<EOF>";
+
+			Console.WriteLine("Send to: " + ns.RemoteEndPoint.ToString());
+			Console.WriteLine("Send msg: " + msg + "\n");
+
+			byte[] sendBufer = System.Text.Encoding.ASCII.GetBytes(msg);
+			ns.BeginSend(sendBufer, 0, sendBufer.Length,
+			SocketFlags.None, new AsyncCallback(MySendCallbackFunction), ns);
+
+			socket.BeginAccept(new AsyncCallback(MyAcceptCallbakFunction), socket);
+		}
+
+		void MySendCallbackFunction(IAsyncResult ia)
+		{
+			Socket ns = (Socket)ia.AsyncState;
+			int n = ((Socket)ia.AsyncState).EndSend(ia);
+			ns.Shutdown(SocketShutdown.Send);
+			ns.Close();
+		}
+
+		public void StartServer()
+		{
+			if (socket != null) return;
+			socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			socket.Bind(endP);
+			socket.Listen(10);
+			socket.BeginAccept(new AsyncCallback(MyAcceptCallbakFunction), socket);
+		}
+	}
+
 	class Program
 	{
 		static void Main(string[] args)
 		{
-			Socket s = new Socket(
-				AddressFamily.InterNetwork,
-				SocketType.Stream,
-				ProtocolType.Tcp
-			);
-			IPAddress ip = IPAddress.Parse("127.0.0.1");
-			IPEndPoint ep = new IPEndPoint(ip, 3000);
+			AsyncServer server = new AsyncServer("127.0.0.1", 1024);
+			server.StartServer();
 
-			try
-			{
-				s.Bind(ep);
-				s.Listen(10);
-
-				while (true)
-				{
-					Socket ns = s.Accept();
-					Console.WriteLine("Recive from: " + ns.RemoteEndPoint.ToString());
-					byte[] buffer = new byte[1024];
-					string result = "";
-
-					while (true)
-					{
-						result += Encoding.ASCII.GetString(buffer, 0, ns.Receive(buffer));
-						Console.WriteLine($"Recive: {result}");
-						if (result.IndexOf("<EOF>") > -1)
-						{
-							break;
-						}
-					}
-
-					result = result.Replace("<EOF>", "");
-					Console.WriteLine("Send to: " + ns.RemoteEndPoint.ToString());
-
-					result += " frog!" + "<EOF>";
-					Console.WriteLine("Send: " + result + "\n");
-
-					byte[] msg = Encoding.ASCII.GetBytes(result);
-					ns.Send(msg);
-					ns.Shutdown(SocketShutdown.Both);
-					ns.Close();
-				}
-			}
-			catch (SocketException ex)
-			{
-				Console.WriteLine(ex.Message);
-			}
+			Console.Read();
 		}
 	}
 }
